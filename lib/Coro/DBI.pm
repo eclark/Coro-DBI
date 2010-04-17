@@ -190,6 +190,11 @@ Currently uses a hard-coded default TCP port 5001.
 
 Suffers from the same bugs and limitations as L<DBD::Proxy>.
 
+    syscall 172,1,2;
+
+The above syscall is not portable in its current state.  That number is 
+only valid for 32 bit perl on Linux.
+
 =cut
 
 1;    # End of Coro::DBI
