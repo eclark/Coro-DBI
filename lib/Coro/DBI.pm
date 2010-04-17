@@ -7,6 +7,7 @@ our $VERSION = '0.01';
 
 use AnyEvent::Util qw(run_cmd);
 use Coro::Timer;
+use Config;
 
 our $childpid;
 our $child_cv;
@@ -32,6 +33,12 @@ sub import {
 sub start {
     $localport = @_ == 2 ? pop : 5001;
 
+    my $prctl = $Config{archname} =~ /^x86_64-linux/
+        ? 157 
+        : ($Config{archname} =~ /^i[3456]86-linux/
+        ? 172
+        : undef);
+
     $child_cv = run_cmd [
         'dbiproxy', '--localport', $localport, '--mode',
         'single',   '--logfile',   'STDERR'
@@ -41,7 +48,7 @@ sub start {
       '<'          => '/dev/null',
       '$$'         => \$childpid,
       'on_prepare' => sub {
-        syscall 172, 1, 2;
+        syscall $prctl, 1, 2 if defined $prctl;
       };
 
     Coro::Timer::sleep 1;

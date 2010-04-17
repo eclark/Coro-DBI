@@ -1,5 +1,3 @@
-#!/gsc/bin/perl
-
 use strict;
 use warnings;
 
