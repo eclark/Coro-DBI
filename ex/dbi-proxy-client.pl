@@ -2,8 +2,6 @@ use strict;
 use warnings;
 
 use File::Basename;
-use lib File::Basename::dirname(__FILE__) . "/../lib";
-
 use Coro::DBI;
 
 my $db = File::Basename::dirname(__FILE__) . "/test.s";
@@ -18,5 +16,6 @@ while ( my @row = $sth->fetchrow_array ) {
 }
 $sth->finish;
 
+sleep 30;
 $dbh->disconnect;
 

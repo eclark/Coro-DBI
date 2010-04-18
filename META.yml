@@ -1,0 +1,28 @@
+---
+abstract: 'asynchronous DBI access'
+author:
+  - 'Eric Clark, C<< <eclark at genome.wustl.edu> >>'
+  - 'Eric Clark <eclark@genome.wustl.edu>'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.95'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Coro-DBI
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  AnyEvent: 5.251
+  Coro: 5.21
+  DBI: 1.609
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.01
