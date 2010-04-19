@@ -7,28 +7,12 @@ our $VERSION = '0.01';
 
 use AnyEvent::Util qw(run_cmd);
 use Coro::Timer;
+use DBI;
 use Config;
 
 our $childpid;
 our $child_cv;
 our $localport;
-
-my $installed = 0;
-
-sub import {
-    if ( !$installed++ ) {
-        require DBI;
-
-        no warnings;
-
-        my $c = \&DBI::connect;
-
-        *DBI::connect = sub {
-            $_[1] = Coro::DBI->dsn_prefix . $_[1] if ( $_[1] !~ /^dbi:proxy/i );
-            $c->(@_);
-        };
-    }
-}
 
 sub start {
     $localport = @_ == 2 ? pop : 5001;
@@ -61,9 +45,16 @@ sub stop {
     $child_cv->recv;
 }
 
-sub dsn_prefix {
-    $_[0]->start unless ( defined $child_cv );
-    return "DBI:Proxy:hostname=localhost;port=$localport;stderr=1;dsn=";
+sub proxy_dsn {
+    return "DBI:Proxy:hostname=localhost;port=$localport;stderr=1";
+}
+
+$DBI::connect_via = 'Coro::DBI::connect';
+sub connect {
+    Coro::DBI->start unless (defined $Coro::DBI::child_cv);
+
+    local $ENV{'DBI_AUTOPROXY'} = __PACKAGE__->proxy_dsn;
+    shift->connect(@_);
 }
 
 ## hook into DBD::Proxy internals to make it non-blocking
@@ -153,11 +144,6 @@ This module changes the behavior of C<DBI::connect> to move connections into
 a child process so they will not block other coros.  It should be used before
 the first database connection is made.
 
-On import this module overrides C<connect> in L<DBI> to start a C<dbi_proxy>
-child process and prepends the C<$data_source> with the L<DBD::Proxy> data
-source.  It also hooks into L<DBD::Proxy> to change the RPC filehandle used
-to L<Coro::Handle>. 
-
 =head1 CLASS METHODS 
 
 None of these methods need to be called for normal operation.
@@ -172,16 +158,13 @@ Starts the C<dbi_proxy> child process.
 
 Kills the C<dbi_proxy> child process with SIGINT.
 
-=head2 dsn_prefix 
+=head2 proxy_dsn 
     $prefix = Coro::DBI->dsn_prefix
 
 Returns the L<DBD::Proxy> part of the C<data_source> so it can be prepended 
-to your data source when connecting.  It automatically calls C<start> with
-the default port if it has not been started yet.
+to your data source when connecting. 
 
-You do not need to use the dsn_prefix directly if C<import> was called when 
-L<Coro::DBI> was used, since that overloads C<DBI::connect> to prepend it
-for you.
+You do not need to use the proxy_dsn directly.
 
 =head1 SEE ALSO
 
@@ -197,10 +180,7 @@ Currently uses a hard-coded default TCP port 5001.
 
 Suffers from the same bugs and limitations as L<DBD::Proxy>.
 
-    syscall 172,1,2;
-
-The above syscall is not portable in its current state.  That number is 
-only valid for 32 bit perl on Linux.
+dbi_proxy child process will not shutdown automatically unless you are on Linux i386 or x86_64
 
 =cut
 

@@ -16,6 +16,5 @@ while ( my @row = $sth->fetchrow_array ) {
 }
 $sth->finish;
 
-sleep 30;
 $dbh->disconnect;
 
