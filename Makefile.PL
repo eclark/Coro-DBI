@@ -10,6 +10,7 @@ requires 'AnyEvent' => 5.251;
 requires 'Coro' => 5.21;
 requires 'DBI' => 1.609;
 requires 'RPC::PlServer' => '0.2017';
+requires 'Linux::Pdeathsig' => '0.00_01';
 auto_install;
 
 WriteAll;
