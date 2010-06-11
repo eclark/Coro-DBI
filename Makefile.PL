@@ -1,7 +1,7 @@
 use inc::Module::Install;
 
 name     'Coro-DBI';
-author   'Eric Clark <eclark@genome.wustl.edu>';
+author   'Eric Clark <zerohp@cpan.org>';
 version_from 'lib/Coro/DBI.pm';
 license  'perl';
 

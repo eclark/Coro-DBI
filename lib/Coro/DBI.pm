@@ -3,7 +3,7 @@ package Coro::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.00_01';
 
 use AnyEvent::Util qw(run_cmd);
 use Coro::Timer;
